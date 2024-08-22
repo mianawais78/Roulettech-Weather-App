@@ -11,14 +11,19 @@ import {
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [name, setName] = useState("");
 
   const handleLogin = (jwtToken) => {
     setToken(jwtToken);
     localStorage.setItem("token", jwtToken);
   };
 
+  const handleUsername = (userName) => {
+    setName(userName);
+  };
   const handleLogout = () => {
     setToken(null);
+    setName("");
     localStorage.removeItem("token");
   };
 
@@ -32,7 +37,10 @@ function App() {
               token ? (
                 <Navigate to="/home" />
               ) : (
-                <LoginForm handleLogin={handleLogin} />
+                <LoginForm
+                  handleLogin={handleLogin}
+                  handleUsername={handleUsername}
+                />
               )
             }
           />
@@ -40,7 +48,11 @@ function App() {
             path="/home"
             element={
               token ? (
-                <Home token={token} handleLogout={handleLogout} />
+                <Home
+                  token={token}
+                  handleLogout={handleLogout}
+                  username={name}
+                />
               ) : (
                 <Navigate to="/" />
               )

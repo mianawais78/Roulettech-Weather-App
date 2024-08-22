@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginForm.css";
 import { FaUserAlt } from "react-icons/fa";
-import { FaLock } from "react-icons/fa";
+import { FaLock, FaEnvelope } from "react-icons/fa";
 import { config } from "../Config";
-function LoginForm({ handleLogin }) {
+
+function LoginForm({ handleLogin, handleUsername }) {
+  const [formState, setformState] = useState("Login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -15,10 +19,13 @@ function LoginForm({ handleLogin }) {
     const requestBody = {
       username: username,
       password: password,
+      ...(formState === "Sign Up" && { email: email }), // Add email only if formState is Sign Up
     };
 
-    // Make the login request and retrieve the JWT token
-    fetch(`${config.apiBaseUrl}/login/`, {
+    const endpoint = formState === "Login" ? "/login/" : "/register/"; // Set endpoint based on formState
+
+    // Make the request and retrieve the JWT token or handle signup
+    fetch(`${config.apiBaseUrl}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -30,25 +37,33 @@ function LoginForm({ handleLogin }) {
           return response.json();
         } else {
           console.log(response);
-          throw new Error("Login failed");
+          throw new Error(`${formState} failed`);
         }
       })
       .then((data) => {
-        if (data.access) {
-          handleLogin(data.access); // Store the access token
-          navigate("/home");
+        if (formState === "Login") {
+          if (data.access) {
+            handleLogin(data.access);
+            handleUsername(data.username);
+            navigate("/home");
+          } else {
+            throw new Error("Invalid JWT token");
+          }
         } else {
-          throw new Error("Invalid JWT token");
+          // Handle signup success
+          alert("Signup successful! Please log in.");
+          setformState("Login");
         }
       })
       .catch((error) => {
-        console.log("Login failed:", error);
+        console.log(`${formState} failed:`, error);
       });
   };
+
   return (
     <div className="wrapper">
       <form action="" onSubmit={handleSubmit}>
-        <h1>Login</h1>
+        <h1>{formState}</h1>
         <div className="input-box">
           <input
             type="text"
@@ -59,6 +74,18 @@ function LoginForm({ handleLogin }) {
           />
           <FaUserAlt className="icon" />
         </div>
+        {formState === "Sign Up" && (
+          <div className="input-box">
+            <input
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <FaEnvelope className="icon" />
+          </div>
+        )}
         <div className="input-box">
           <input
             type="password"
@@ -69,18 +96,24 @@ function LoginForm({ handleLogin }) {
           />
           <FaLock className="icon" />
         </div>
-        <div className="remember-forgot">
-          <label>
-            <input type="checkbox" />
-            Remember me
-          </label>
-          <a href="#">Forgot password?</a>
-        </div>
-        <button type="submit">Login</button>
+
+        <button type="submit">{formState}</button>
         <div className="register-link">
-          <p>
-            Don't have an account?<a href="#">Register</a>
-          </p>
+          {formState === "Login" ? (
+            <p>
+              Don't have an account?
+              <a href="#" onClick={() => setformState("Sign Up")}>
+                Register
+              </a>
+            </p>
+          ) : (
+            <p>
+              Already registered?
+              <a href="#" onClick={() => setformState("Login")}>
+                Login
+              </a>
+            </p>
+          )}
         </div>
       </form>
     </div>

@@ -1,25 +1,23 @@
-// import React from "react";
-// import { Container, Nav, Navbar } from "react-bootstrap";
+// src/components/Header.js
 
-// function Header() {
-//   return (
-//     <header>
-//       <Navbar bg="dark" variant="dark" expand="ig" collapseOnSelect>
-//         <Container>
-//           <Navbar.Brand href="/">OA</Navbar.Brand>
-//           <Navbar.Toggle aria-controls="basic-navbar-nav" />
-//           <Navbar.Collapse id="basic-navbar-nav">
-//             <Nav className="mr-auto">
-//               <Nav.Link href="/weather">Weather</Nav.Link>
-//               <Nav.Link>
-//                 <i className="fas fa-user"></i>Login
-//               </Nav.Link>
-//             </Nav>
-//           </Navbar.Collapse>
-//         </Container>
-//       </Navbar>
-//     </header>
-//   );
-// }
+import React from "react";
+import { FaRedo } from "react-icons/fa"; // Import the refresh icon
 
-// export default Header;
+function Header({ username, onLogout, onRefresh }) {
+  return (
+    <div className="header">
+      <h1>Roulettech Weather App</h1>
+      <div className="header-info">
+        <p>{username}</p>
+        <button className="refresh-button" onClick={onRefresh}>
+          <FaRedo />
+        </button>
+        <button className="logout-button" onClick={onLogout}>
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default Header;
