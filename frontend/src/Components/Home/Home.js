@@ -3,22 +3,24 @@ import Weather from "../Weather/Weather.js";
 import { FaRedo } from "react-icons/fa";
 import "./Home.css";
 import { useDispatch, useSelector } from "react-redux";
+import { config } from "../Config";
 
 function Home({ username, handleLogout, token }) {
   const locations = useSelector((state) => state.locations);
   const dispatch = useDispatch();
   const [location, setLocation] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchSavedLocations = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/locations/", {
-          method: "POST", // Change to POST if username is needed in the request body
+        const response = await fetch(`${config.apiBaseUrl}/locations/`, {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ username }), // Include the username in the request body
+          body: JSON.stringify({ username }),
         });
 
         if (!response.ok) {
@@ -36,8 +38,16 @@ function Home({ username, handleLogout, token }) {
   }, [dispatch, token, username]);
 
   const addLocation = async () => {
+    if (
+      locations.some((loc) => loc.name.toLowerCase() === location.toLowerCase())
+    ) {
+      setErrorMessage("Location already added!");
+      setTimeout(() => setErrorMessage(""), 3000); 
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:8000/api/fetch-weather/", {
+      const response = await fetch(`${config.apiBaseUrl}/fetch-weather/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,15 +63,17 @@ function Home({ username, handleLogout, token }) {
       const data = await response.json();
       dispatch({ type: "ADD_LOCATION", payload: data });
       setLocation("");
+      setErrorMessage(""); 
     } catch (error) {
       console.error("Error fetching weather data:", error);
+      setErrorMessage("Error fetching weather data. Please try again.");
     }
   };
 
   const removeLocation = async (locationName) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/delete-location/${locationName}/`,
+        `${config.apiBaseUrl}/delete-location/${locationName}/`,
         {
           method: "DELETE",
           headers: {
@@ -84,17 +96,14 @@ function Home({ username, handleLogout, token }) {
     try {
       const updatedLocations = await Promise.all(
         locations.map(async (location) => {
-          const response = await fetch(
-            "http://localhost:8000/api/fetch-weather/",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ location: location.name }),
-            }
-          );
+          const response = await fetch(`${config.apiBaseUrl}/fetch-weather/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ location: location.name }),
+          });
 
           if (!response.ok) {
             throw new Error("Failed to fetch weather data");
@@ -104,7 +113,14 @@ function Home({ username, handleLogout, token }) {
         })
       );
 
-      dispatch({ type: "SET_LOCATIONS", payload: updatedLocations });
+      const uniqueUpdatedLocations = updatedLocations.filter(
+        (data) => !locations.some((loc) => loc.name === data.name)
+      );
+
+      dispatch({
+        type: "SET_LOCATIONS",
+        payload: [...locations, ...uniqueUpdatedLocations],
+      });
     } catch (error) {
       console.error("Error refreshing weather data:", error);
     }
@@ -130,17 +146,18 @@ function Home({ username, handleLogout, token }) {
             type="text"
           />
           <button onClick={addLocation}>Add Location</button>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         <button className="refresh-button" onClick={refreshWeather}>
           <FaRedo /> Refresh
         </button>
       </div>
       <div className="weather-cards">
-        {locations.map((location) => (
+        {locations.map((loc) => (
           <Weather
-            key={location.name}
-            data={location}
-            onRemove={() => removeLocation(location.name)}
+            key={loc.name}
+            data={loc}
+            onRemove={() => removeLocation(loc.name)}
           />
         ))}
       </div>
