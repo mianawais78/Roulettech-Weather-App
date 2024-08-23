@@ -99,3 +99,7 @@
 .register-link p a:hover {
   text-decoration: underline;
 }
+.error-message {
+  color: rgb(193, 0, 0);
+  margin-top: 10px;
+}
