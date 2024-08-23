@@ -42,7 +42,7 @@ function Home({ username, handleLogout, token }) {
       locations.some((loc) => loc.name.toLowerCase() === location.toLowerCase())
     ) {
       setErrorMessage("Location already added!");
-      setTimeout(() => setErrorMessage(""), 3000); 
+      setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
 
@@ -63,7 +63,7 @@ function Home({ username, handleLogout, token }) {
       const data = await response.json();
       dispatch({ type: "ADD_LOCATION", payload: data });
       setLocation("");
-      setErrorMessage(""); 
+      setErrorMessage("");
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setErrorMessage("Error fetching weather data. Please try again.");
@@ -130,13 +130,9 @@ function Home({ username, handleLogout, token }) {
     <div className="home-container">
       <div className="navbar">
         <p className="welcome-message">Welcome, {username}</p>
-        <button className="logButton" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
-      <div className="weather-controls">
-        <div className="search">
+        <div style={{ display: "flex", gap: "10px" }} className="search">
           <input
+            style={{ borderRadius: "5px", outline: "none" }}
             value={location}
             onChange={(event) => setLocation(event.target.value)}
             onKeyPress={(event) => {
@@ -145,9 +141,23 @@ function Home({ username, handleLogout, token }) {
             placeholder="Enter Location"
             type="text"
           />
-          <button onClick={addLocation}>Add Location</button>
+          <button
+            style={{
+              padding: "10px 20px",
+              cursor: "pointer",
+              borderRadius: "5px",
+            }}
+            onClick={addLocation}
+          >
+            Add Location
+          </button>
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
+        <button className="logButton" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+      <div className="weather-controls">
         <button className="refresh-button" onClick={refreshWeather}>
           <FaRedo /> Refresh
         </button>

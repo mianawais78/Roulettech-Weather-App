@@ -58,61 +58,63 @@ function LoginForm() {
   };
 
   return (
-    <div className="wrapper">
-      <form onSubmit={handleSubmit}>
-        <h1>{formState}</h1>
-        <div className="input-box">
-          <input
-            type="text"
-            placeholder="Username"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <FaUserAlt className="icon" />
-        </div>
-        {formState === "Sign Up" && (
+    <div className="main-div">
+      <div className="wrapper">
+        <form onSubmit={handleSubmit}>
+          <h1>{formState}</h1>
           <div className="input-box">
             <input
-              type="email"
-              placeholder="Email"
+              type="text"
+              placeholder="Username"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
-            <FaEnvelope className="icon" />
+            <FaUserAlt className="icon" />
           </div>
-        )}
-        <div className="input-box">
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <FaLock className="icon" />
-        </div>
-
-        <button type="submit">{formState}</button>
-        <div className="register-link">
-          {formState === "Login" ? (
-            <p>
-              Don't have an account?
-              <a href="#" onClick={() => setFormState("Sign Up")}>
-                Register
-              </a>
-            </p>
-          ) : (
-            <p>
-              Already registered?
-              <a href="#" onClick={() => setFormState("Login")}>
-                Login
-              </a>
-            </p>
+          {formState === "Sign Up" && (
+            <div className="input-box">
+              <input
+                type="email"
+                placeholder="Email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <FaEnvelope className="icon" />
+            </div>
           )}
-        </div>
-      </form>
+          <div className="input-box">
+            <input
+              type="password"
+              placeholder="Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <FaLock className="icon" />
+          </div>
+
+          <button type="submit">{formState}</button>
+          <div className="register-link">
+            {formState === "Login" ? (
+              <p>
+                Don't have an account?
+                <a href="#" onClick={() => setFormState("Sign Up")}>
+                  Register
+                </a>
+              </p>
+            ) : (
+              <p>
+                Already registered?
+                <a href="#" onClick={() => setFormState("Login")}>
+                  Login
+                </a>
+              </p>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
