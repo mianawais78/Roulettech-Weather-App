@@ -1,30 +1,42 @@
 import "./App.css";
 import LoginForm from "./Components/Login/LoginForm";
 import Home from "./Components/Home/Home";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
 } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { login, logout } from "./store/actions/authActions"; 
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [name, setName] = useState("");
+  const token = useSelector((state) => state.auth.token);
+  const username = useSelector((state) => state.auth.username);
+  const dispatch = useDispatch();
 
-  const handleLogin = (jwtToken) => {
-    setToken(jwtToken);
+  useEffect(() => {
+    
+    const storedToken = localStorage.getItem("token");
+    const storedUsername = localStorage.getItem("username");
+
+    if (storedToken && storedUsername) {
+      
+      dispatch(login(storedToken, storedUsername));
+    }
+  }, [dispatch]);
+
+  const handleLogin = (jwtToken, username) => {
+    dispatch(login(jwtToken, username));
     localStorage.setItem("token", jwtToken);
+    localStorage.setItem("username", username); 
   };
 
-  const handleUsername = (userName) => {
-    setName(userName);
-  };
   const handleLogout = () => {
-    setToken(null);
-    setName("");
+    dispatch(logout());
     localStorage.removeItem("token");
+    localStorage.removeItem("username"); 
   };
 
   return (
@@ -37,10 +49,7 @@ function App() {
               token ? (
                 <Navigate to="/home" />
               ) : (
-                <LoginForm
-                  handleLogin={handleLogin}
-                  handleUsername={handleUsername}
-                />
+                <LoginForm handleLogin={handleLogin} />
               )
             }
           />
@@ -51,7 +60,7 @@ function App() {
                 <Home
                   token={token}
                   handleLogout={handleLogout}
-                  username={name}
+                  username={username}
                 />
               ) : (
                 <Navigate to="/" />

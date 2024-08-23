@@ -1,30 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import "./LoginForm.css";
-import { FaUserAlt } from "react-icons/fa";
-import { FaLock, FaEnvelope } from "react-icons/fa";
+import { FaUserAlt, FaLock, FaEnvelope } from "react-icons/fa";
+import { login } from "../../store/actions/authActions";
 import { config } from "../Config";
 
-function LoginForm({ handleLogin, handleUsername }) {
-  const [formState, setformState] = useState("Login");
+function LoginForm() {
+  const [formState, setFormState] = useState("Login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Prepare the request body
     const requestBody = {
       username: username,
       password: password,
-      ...(formState === "Sign Up" && { email: email }), // Add email only if formState is Sign Up
+      ...(formState === "Sign Up" && { email: email }),
     };
 
-    const endpoint = formState === "Login" ? "/login/" : "/register/"; // Set endpoint based on formState
+    const endpoint = formState === "Login" ? "/login/" : "/register/";
 
-    // Make the request and retrieve the JWT token or handle signup
     fetch(`${config.apiBaseUrl}${endpoint}`, {
       method: "POST",
       headers: {
@@ -36,23 +36,20 @@ function LoginForm({ handleLogin, handleUsername }) {
         if (response.ok) {
           return response.json();
         } else {
-          console.log(response);
           throw new Error(`${formState} failed`);
         }
       })
       .then((data) => {
         if (formState === "Login") {
           if (data.access) {
-            handleLogin(data.access);
-            handleUsername(data.username);
+            dispatch(login(data.access, data.username));
             navigate("/home");
           } else {
             throw new Error("Invalid JWT token");
           }
         } else {
-          // Handle signup success
           alert("Signup successful! Please log in.");
-          setformState("Login");
+          setFormState("Login");
         }
       })
       .catch((error) => {
@@ -62,7 +59,7 @@ function LoginForm({ handleLogin, handleUsername }) {
 
   return (
     <div className="wrapper">
-      <form action="" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <h1>{formState}</h1>
         <div className="input-box">
           <input
@@ -102,14 +99,14 @@ function LoginForm({ handleLogin, handleUsername }) {
           {formState === "Login" ? (
             <p>
               Don't have an account?
-              <a href="#" onClick={() => setformState("Sign Up")}>
+              <a href="#" onClick={() => setFormState("Sign Up")}>
                 Register
               </a>
             </p>
           ) : (
             <p>
               Already registered?
-              <a href="#" onClick={() => setformState("Login")}>
+              <a href="#" onClick={() => setFormState("Login")}>
                 Login
               </a>
             </p>

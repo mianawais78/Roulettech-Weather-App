@@ -1,40 +1,113 @@
-// src/components/Home.js
-
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import Weather from "../Weather/Weather.js";
 import { FaRedo } from "react-icons/fa";
 import "./Home.css";
+import { useDispatch, useSelector } from "react-redux";
 
 function Home({ username, handleLogout, token }) {
-  const [cities, setCities] = useState([]);
+  const locations = useSelector((state) => state.locations);
+  const dispatch = useDispatch();
   const [location, setLocation] = useState("");
 
-  const addLocation = async () => {
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=imperial&appid=895284fb2d2c50a520ea537456963d9c`;
+  useEffect(() => {
+    const fetchSavedLocations = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/locations/", {
+          method: "POST", // Change to POST if username is needed in the request body
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ username }), // Include the username in the request body
+        });
 
+        if (!response.ok) {
+          throw new Error("Failed to fetch saved locations");
+        }
+
+        const data = await response.json();
+        dispatch({ type: "SET_LOCATIONS", payload: data });
+      } catch (error) {
+        console.error("Error fetching saved locations:", error);
+      }
+    };
+
+    fetchSavedLocations();
+  }, [dispatch, token, username]);
+
+  const addLocation = async () => {
     try {
-      const response = await axios.get(url);
-      setCities([...cities, response.data]);
+      const response = await fetch("http://localhost:8000/api/fetch-weather/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ location }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch weather data");
+      }
+
+      const data = await response.json();
+      dispatch({ type: "ADD_LOCATION", payload: data });
       setLocation("");
     } catch (error) {
       console.error("Error fetching weather data:", error);
     }
   };
 
-  const removeCity = (cityName) => {
-    setCities(cities.filter((city) => city.name !== cityName));
+  const removeLocation = async (locationName) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/delete-location/${locationName}/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete location");
+      }
+
+      dispatch({ type: "REMOVE_LOCATION", payload: locationName });
+    } catch (error) {
+      console.error("Error deleting location:", error);
+    }
   };
 
   const refreshWeather = async () => {
-    const updatedCities = await Promise.all(
-      cities.map(async (city) => {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city.name}&units=imperial&appid=895284fb2d2c50a520ea537456963d9c`;
-        const response = await axios.get(url);
-        return response.data;
-      })
-    );
-    setCities(updatedCities);
+    try {
+      const updatedLocations = await Promise.all(
+        locations.map(async (location) => {
+          const response = await fetch(
+            "http://localhost:8000/api/fetch-weather/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ location: location.name }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch weather data");
+          }
+
+          return response.json();
+        })
+      );
+
+      dispatch({ type: "SET_LOCATIONS", payload: updatedLocations });
+    } catch (error) {
+      console.error("Error refreshing weather data:", error);
+    }
   };
 
   return (
@@ -63,11 +136,11 @@ function Home({ username, handleLogout, token }) {
         </button>
       </div>
       <div className="weather-cards">
-        {cities.map((city) => (
+        {locations.map((location) => (
           <Weather
-            key={city.name}
-            data={city}
-            onRemove={() => removeCity(city.name)}
+            key={location.name}
+            data={location}
+            onRemove={() => removeLocation(location.name)}
           />
         ))}
       </div>
