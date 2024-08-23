@@ -101,3 +101,7 @@
   font-size: 20px;
   color: rgb(155, 149, 160);
 }
+.error-message {
+  color: whitesmoke;
+  margin-top: 5px;
+}
