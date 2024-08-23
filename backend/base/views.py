@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 import requests
 from django.http import JsonResponse
-
+from django.conf import settings
 
 
 
@@ -43,7 +43,7 @@ def fetch_weather(request):
     if not location_name:
         return Response({'error': 'Location is required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    API_KEY = '895284fb2d2c50a520ea537456963d9c'
+    API_KEY = settings.API_KEY
     url = f'http://api.openweathermap.org/data/2.5/weather?q={location_name}&units=imperial&appid={API_KEY}'
     response = requests.get(url)
 
@@ -51,11 +51,11 @@ def fetch_weather(request):
         return Response({'error': 'Failed to fetch weather data'}, status=response.status_code)
 
     weather_data = response.json()
-    user = request.user  # Get the current user
+    user = request.user
 
-    # Save the weather data in the database
+    
     location_instance = Location(
-        user=user,  # Associate the location with the current user
+        user=user,  
         name=weather_data['name'],
         temperature=weather_data['main']['temp'],
         weather_description=weather_data['weather'][0]['description'],
