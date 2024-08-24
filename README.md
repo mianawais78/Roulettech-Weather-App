@@ -13,7 +13,7 @@ Roulettech Weather App is a comprehensive weather application designed to provid
 
 - **Frontend**: Built with [React](https://reactjs.org/), utilizing [Redux](https://redux.js.org/) for state management and [React Router](https://reactrouter.com/) for navigation.
 - **Backend**: Developed with [Django](https://www.djangoproject.com/) and [Django REST framework](https://www.django-rest-framework.org/) to handle API requests.
-- **Database**: Uses [SQLite](https://www.sqlite.org/index.html) for local storage of user data and location information.
+- **Database**: Uses [PostgreSQL](https://www.sqlite.org/index.html) for local storage of user data and location information.
 - **Styling**: The user interface is styled using CSS.
 - **Security**: Implemented a [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) policy on the backend to enhance security.
 
