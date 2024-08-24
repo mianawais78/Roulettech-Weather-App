@@ -54,12 +54,12 @@ MIDDLEWARE = [
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://roulettech-weather-app.s3-website.eu-north-1.amazonaws.com/",
 ]
 
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
+    "http://roulettech-weather-app.s3-website.eu-north-1.amazonaws.com/",
 ]
 
 ROOT_URLCONF = 'backend.urls'
