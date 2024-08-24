@@ -56,7 +56,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://roulettech-weather-app.s3-website.eu-north-1.amazonaws.com"
 ]
-
+ALLOWED_HOSTS = ['*']
 # CSRF settings
 CSRF_TRUSTED_ORIGINS = [
     "http://roulettech-weather-app.s3-website.eu-north-1.amazonaws.com"
